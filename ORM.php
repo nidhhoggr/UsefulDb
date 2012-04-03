@@ -1,5 +1,7 @@
 <?php 
 
+require_once('DB.php');
+
 class ORM extends DB {
 
     public function find($table, $fields="*", $order = null) {
