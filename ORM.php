@@ -58,7 +58,7 @@ class ORM extends DB {
     }
 
     public function findOneBy($table, $fields, $conditions=null, $order = null, $debug=false) {
-            $result = $this->findBy($table, $fields, $conditions, $debug);
+            $result = $this->findBy($table, $fields, $conditions, $order, $debug);
 
             return $result[0];
     }
