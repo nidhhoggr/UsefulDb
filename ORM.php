@@ -4,15 +4,28 @@ require_once('DB.php');
 
 class ORM extends DB {
 
-    public function find($table, $fields="*", $order = null) {
+    public function find($table, $fields="*", $order = null,$debug=false) {
 
-        $result = $this->query("SELECT ".$fields." FROM ".$table." $order");
+        if(is_array($fields))
+            $sql_fields = implode(', ',$fields);
+        else
+            $sql_fields = $fields;
+
+        $result = $this->query("SELECT ".$sql_fields." FROM ".$table." $order",$debug);
 
         while($row = mysql_fetch_assoc($result)) {
-           if($fields == "*")
+           if($fields == "*") {
                $all[] = $row;
-           else
+           }
+           else if(is_array($fields)) {
+               foreach($fields as $field) {
+                   $values[$field] = $row[$field];
+               }
+               $all[] = $values;
+           }
+           else {
                $all[] = $row[$fields];
+           }
         }
 
         return $all;
