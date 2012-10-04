@@ -303,4 +303,13 @@
     function truncateTable($table) {
         mysql_query("TRUNCATE TABLE $table");
     }
+
+    function getColumnsByTable($table) {
+        $result = $this->query('SHOW COLUMNS IN ' . $table);
+
+        while($row = mysql_fetch_assoc($result))
+            $columns[] = $row['Field'];
+
+        return $columns;
+    }
 } 
