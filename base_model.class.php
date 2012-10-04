@@ -4,10 +4,10 @@ require_once(dirname(__FILE__) . '/ORM.php');
 
 abstract class BaseModel {
 
-    private $dbal,$dbtable;
-
-    private
-        $dbhost = "",
+    private 
+        $dbal = null,
+        $dbtable = null,
+        $dbhost = "localhost",
         $bduser = "",
         $dbpassword = "",
         $dbname = "",
@@ -19,6 +19,31 @@ abstract class BaseModel {
     }
 
     abstract protected function configure();
+
+    public function find($conditions = null,$fields = '*') {
+
+        if(!empty($conditions))
+            $result = $this->dbal->findOneBy($this->dbtable,$fields,$conditions);
+        else
+            $result = $this->dbal->find($this->dbtable);
+
+        return $result;
+    }
+
+    public function save() {
+        $identifier = $this->identifier;
+        $attributes = $this->_getAttributes();
+
+        $conditions = $identifier . ' = "' . $attributes[$identifier] . '"';
+
+        if($test = $this->find($conditions)) {
+            $this->_update();
+        }
+        else {
+            $this->_insert();
+        }
+
+    }
 
     public function setTable($table) {
         $this->dbtable = $table;
@@ -63,31 +88,6 @@ abstract class BaseModel {
         }
 
         return ' SET ' . implode(',',$statements) . ' WHERE ' . $identifier .' = '. $attributes[$identifier];
-    }
-
-    public function find($conditions = null,$fields = '*') {
-
-        if(!empty($conditions))
-            $result = $this->dbal->findOneBy($this->dbtable,$fields,$conditions);
-        else 
-            $result = $this->dbal->find($this->dbtable);
-       
-        return $result;
-    }
-
-    public function save() {
-        $identifier = $this->identifier;
-        $attributes = $this->_getAttributes();
-
-        $conditions = $identifier . ' = "' . $attributes[$identifier] . '"';
-
-        if($test = $this->find($conditions)) {
-            $this->_update();
-        }
-        else {
-            $this->_insert();
-        }
-
     }
 
     private function _insert() {
