@@ -7,16 +7,34 @@ abstract class BaseModel {
     private 
         $dbal = null,
         $dbtable = null,
-        $dbhost = "localhost",
-        $bduser = "",
+        $dbhost = "",
+        $dbuser = "",
         $dbpassword = "",
         $dbname = "",
         $identifier = "id";
 
-    function __construct() {
+    function __construct($args) {
+        $this->setConnection($args);
         $this->dbal = new ORM($this->dbname,$this->dbhost,$this->dbuser,$this->dbpassword);
         $this->configure();
+
     }
+
+    private function setConnection($args) {
+
+	print_r($args);
+	
+	$array_vars = array('dbname','dbhost','dbuser','dbpassword');
+
+	foreach($array_vars as $av) {
+	    if(empty($args[$av]))
+	        die("Must proved all 4 params for a db connection");
+
+            $this->$av = $args[$av];
+	}
+
+    }
+
 
     abstract protected function configure();
 
