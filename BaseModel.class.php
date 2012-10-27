@@ -44,8 +44,6 @@ abstract class BaseModel extends DBAL {
     abstract protected function configure();
 
     public function find($conditions = null,$fields = '*') {
-        var_dump($this->dbtable);
-
 
         if(empty($conditions))
             return parent::find($this->dbtable,$fields);
