@@ -1,9 +1,9 @@
 <?php
 
-require_once('UsefulDb/base_model.class.php');
+require_once(dirname(__FILE__). '/../BaseModel.class.php');
 
 
-//SET THE CONNECTION HERE
+//SET THE CONNECTION VARS HERE
 $dbuser = '';
 $dbpassword  = '';
 $dbname = '';
@@ -14,14 +14,9 @@ $connection_args = compact('dbuser','dbname','dbpassword','dbhost');
 //EXTEND THE BASE MODEL
 class ConnectionTestModel extends BaseModel {
 
-
-    public function __construct($args) {
-        parent::__construct($args);
-    }
-
     //SET THE TABLE OF THE MODEL AND THE IDENTIFIER
     protected function configure() {
-        $this->dbtable  = "testing";
+        $this->setTable("testing");
     }
 
 }
@@ -29,3 +24,6 @@ class ConnectionTestModel extends BaseModel {
 //INSTANTIATE THE MODEL
 $ctm = new ConnectionTestModel($connection_args);
 
+
+//DUMP THE RECORDS OF THE TABLE
+var_dump($ctm->find());

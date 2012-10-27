@@ -1,11 +1,19 @@
 <?php
 
-require_once(dirname(__FILE__) . '/ORM.php');
+require_once(dirname(__FILE__) . '/DBAL.class.php');
 
-abstract class BaseModel {
+/**
+* @author: joseph persie
+*
+* this is the base model class to configure and extend
+* the configuration method must be implemented to set the 
+* identifier and the table name. Basic crud operations can be performed
+* by this model extedning the functioanlity of the DBAL
+*/
+
+abstract class BaseModel extends DBAL {
 
     private 
-        $dbal = null,
         $dbtable = null,
         $dbhost = "",
         $dbuser = "",
@@ -15,20 +23,17 @@ abstract class BaseModel {
 
     function __construct($args) {
         $this->setConnection($args);
-        $this->dbal = new ORM($this->dbname,$this->dbhost,$this->dbuser,$this->dbpassword);
+        parent::__construct($this->dbname,$this->dbhost,$this->dbuser,$this->dbpassword);
         $this->configure();
-
     }
 
     private function setConnection($args) {
 
-	print_r($args);
-	
 	$array_vars = array('dbname','dbhost','dbuser','dbpassword');
 
 	foreach($array_vars as $av) {
 	    if(empty($args[$av]))
-	        die("Must proved all 4 params for a db connection");
+	        die("Must provide all 4 paramaters for a db connection");
 
             $this->$av = $args[$av];
 	}
@@ -39,13 +44,17 @@ abstract class BaseModel {
     abstract protected function configure();
 
     public function find($conditions = null,$fields = '*') {
+        var_dump($this->dbtable);
 
-        if(!empty($conditions))
-            $result = $this->dbal->findOneBy($this->dbtable,$fields,$conditions);
+
+        if(empty($conditions))
+            return parent::find($this->dbtable,$fields);
         else
-            $result = $this->dbal->find($this->dbtable);
+            return parent::findBy($this->dbtable,$fields,$conditions);
+    }
 
-        return $result;
+    public function findOne($conditions = null,$fields = '*') {
+        return parent::findOneBy($this->dbtable,$fields,$conditions);
     }
 
     public function save() {
@@ -75,7 +84,7 @@ abstract class BaseModel {
  
         $attributes = array();
   
-        $columns = $this->dbal->getColumnsByTable($this->dbtable);
+        $columns = $this->getColumnsByTable($this->dbtable);
 
         foreach($columns as $col) {
             if(!empty($this->$col))
@@ -116,7 +125,7 @@ abstract class BaseModel {
 
         $sql = 'INSERT INTO ' . $this->dbtable . '('.$columns.') VALUES('.$values.')';
  
-        $this->dbal->execute($sql);
+        $this->execute($sql);
     }
 
     private function _update() {
@@ -124,6 +133,6 @@ abstract class BaseModel {
 
         $sql = 'UPDATE ' . $this->dbtable . ' ' . $attributes;
 
-        $this->dbal->execute($sql);
+        $this->execute($sql);
     }
 }

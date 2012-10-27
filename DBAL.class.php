@@ -1,8 +1,8 @@
 <?php 
 
-require_once(dirname(__FILE__) . '/DB.php');
+require_once(dirname(__FILE__) . '/DB.class.php');
 
-class ORM extends DB {
+class DBAL extends DB {
 
     public function find($table, $fields="*", $order = null,$debug=false) {
 
