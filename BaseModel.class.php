@@ -58,14 +58,24 @@ abstract class BaseModel extends DBAL {
     public function save() {
         $identifier = $this->identifier;
         $attributes = $this->_getAttributes();
+        $conditions = null;
 
-        $conditions = $identifier . ' = "' . $attributes[$identifier] . '"';
+        if(!empty($attributes[$identifier]))
+            $conditions = $identifier . ' = "' . $attributes[$identifier] . '"';
 
-        if($test = $this->find($conditions)) {
+        //the record already exists by the specified identifier
+        if($this->findOne($conditions) && !empty($conditions)) {
             $this->_update();
+
+            //return the modified id
+            return $attributes[$identifier];
         }
+        //the record doesnt exist yet create a new one
         else {
             $this->_insert();
+
+            //return the last insertion id
+            return $this->lastInsertedId();
         }
 
     }

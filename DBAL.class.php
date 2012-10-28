@@ -6,6 +6,8 @@ class DBAL extends DB {
 
     public function find($table, $fields="*", $order = null,$debug=false) {
 
+        $all = array();
+
         if(is_array($fields))
             $sql_fields = implode(', ',$fields);
         else
@@ -33,10 +35,14 @@ class DBAL extends DB {
 
     public function findBy($table, $fields = "*", $conditions = null, $order = null, $debug=false) {
 
+            $all = array();
+
+            $where = null;
+
             if(is_array($fields))
-                    $sqlfields = implode(",", $fields);
-                else
-                    $sqlfields = $fields;
+                $sqlfields = implode(",", $fields);
+            else
+                $sqlfields = $fields;
 
             if(!empty($conditions)) {
                 if(is_array($conditions))
@@ -53,26 +59,34 @@ class DBAL extends DB {
             while($row = mysql_fetch_assoc($result)) {
                 $values = null;
 
-                    if($fields == "*") {
-                        $all[] = $row;
-                    }
-                    else if(is_array($fields)) {
-                        foreach($fields as $field) {
-                            $values[$field] = $row[$field];
-                        }
-
-                        $all[] = $values;
-                    }
-                    else {
-                        $all[] = $row[$fields];
-                    }
+                if($fields == "*") {
+                    $all[] = $row;
                 }
+                else if(is_array($fields)) {
+                    foreach($fields as $field) {
+                        $values[$field] = $row[$field];
+                    }
+
+                    $all[] = $values;
+                }
+                else {
+                    $all[] = $row[$fields];
+                }
+            }
+
             return $all;
     }
 
     public function findOneBy($table, $fields, $conditions=null, $order = null, $debug=false) {
+            $result = array();
+
+                     
             $result = $this->findBy($table, $fields, $conditions, $order, $debug);
 
-            return $result[0];
+     
+            if($result)
+                return $result[0];
+            else
+                return false;
     }
 }
