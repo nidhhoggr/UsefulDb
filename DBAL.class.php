@@ -33,7 +33,7 @@ class DBAL extends DB {
         return $all;
     }
 
-    public function findBy($table, $fields = "*", $conditions = null, $order = null, $debug=false) {
+    public function findBy($table, $fields = "*", $conditions = null, $order = null, $debug=true) {
 
             $all = array();
 
