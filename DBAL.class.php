@@ -10,7 +10,7 @@ class DBAL extends DB {
         $sqlFields,
         $sqlConditions;
 
-    private function _setDebugMode($mode) {
+    public function setDebugMode($mode) {
 
         $this->debugMode = $mode;
     }
