@@ -15,6 +15,11 @@ class DBAL extends DB {
         $this->debugMode = $mode;
     }
 
+    public function getQuerySql() {
+
+        return $this->querySql;
+    } 
+
     private function _sqlizeFields($fields) {
 
         $this->sqlFields = (is_array($fields)) ? implode(', ',$fields) : $fields;
@@ -42,7 +47,7 @@ class DBAL extends DB {
         
         $this->_sqlizeConditions($conditions);        
 
-        $this->querySql = "SELECT ". $this->sqlFields . " " . $this->_sqlConditions . " FROM $table  $order";
+        $this->querySql = "SELECT ". $this->sqlFields . " " . $this->sqlConditions . " FROM $table  $order";
 
         if($fetchArray) return $this->_fetchArrayFromQuery();
     }
