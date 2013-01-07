@@ -4,89 +4,87 @@ require_once(dirname(__FILE__) . '/DB.class.php');
 
 class DBAL extends DB {
 
-    public function find($table, $fields="*", $order = null,$debug=false) {
+    private 
+        $debugMode = false,
+        $querySql,
+        $sqlFields,
+        $sqlConditions;
 
-        $all = array();
+    private function _setDebugMode($mode) {
 
-        if(is_array($fields))
-            $sql_fields = implode(', ',$fields);
-        else
-            $sql_fields = $fields;
+        $this->debugMode = $mode;
+    }
 
-        $result = $this->query("SELECT ".$sql_fields." FROM ".$table." $order",$debug);
+    private function _sqlizeFields($fields) {
+
+        $this->sqlFields = (is_array($fields)) ? implode(', ',$fields) : $fields;
+    }
+
+    private function _sqlizeConditions($conditions=null) {
+
+        if(!empty($conditions)) {
+
+            if(is_array($conditions))
+                $conditions = implode(" AND ", $conditions);
+
+            $this->sqlConditions = " WHERE $conditions";
+        }
+    }
+
+    public function find($table, $fields="*", $order = null, $fetchArray = true) {
+
+        return $this->findBy($table, $fields, null, $order, $fetchArray);
+    }
+
+    public function findBy($table, $fields = "*", $conditions = null, $order = null, $fetchArray = true) {
+
+        $this->_sqlizeFields($fields);
+        
+        $this->_sqlizeConditions($conditions);        
+
+        $this->querySql = "SELECT ". $this->sqlFields . " " . $this->_sqlConditions . " FROM $table  $order";
+
+        if($fetchArray) return $this->_fetchArrayFromQuery();
+    }
+
+    public function findOneBy($table, $fields, $conditions=null, $order = null) {
+                     
+        $this->findBy($table, $fields, $conditions, $order, false);
+
+        return $this->queryUniqueValue($this->querySql, $this->debugMode);
+    }
+
+    private function _getResultFromQuery() {
+
+        return $this->query($this->querySql, $this->debugMode);
+    }
+
+    private function _fetchArrayFromQuery() {
+
+       $result = $this->_getResultFromQuery();
+
+       $all = array();
+
+       $fields = $this->sqlFields;
 
         while($row = mysql_fetch_assoc($result)) {
-           if($fields == "*") {
-               $all[] = $row;
-           }
-           else if(is_array($fields)) {
-               foreach($fields as $field) {
-                   $values[$field] = $row[$field];
-               }
-               $all[] = $values;
-           }
-           else {
-               $all[] = $row[$fields];
-           }
+            $values = null;
+
+            if($fields == "*") {
+                $all[] = $row;
+            }
+            else if(is_array($fields)) {
+                foreach($fields as $field) {
+                    $values[$field] = $row[$field];
+                }
+
+                $all[] = $values;
+            }
+            else {
+                $all[] = $row[$fields];
+            }
         }
 
         return $all;
-    }
-
-    public function findBy($table, $fields = "*", $conditions = null, $order = null, $debug=true) {
-
-            $all = array();
-
-            $where = null;
-
-            if(is_array($fields))
-                $sqlfields = implode(",", $fields);
-            else
-                $sqlfields = $fields;
-
-            if(!empty($conditions)) {
-                if(is_array($conditions))
-                    $conditions = implode(" AND ", $conditions);
-
-                $where = " WHERE ".$conditions." $order";
-            }
-
-            if($debug)
-                echo "SELECT ".$sqlfields." FROM ".$table.$where."<br />";
-
-            $result = $this->query("SELECT ".$sqlfields." FROM ".$table.$where);
-
-            while($row = mysql_fetch_assoc($result)) {
-                $values = null;
-
-                if($fields == "*") {
-                    $all[] = $row;
-                }
-                else if(is_array($fields)) {
-                    foreach($fields as $field) {
-                        $values[$field] = $row[$field];
-                    }
-
-                    $all[] = $values;
-                }
-                else {
-                    $all[] = $row[$fields];
-                }
-            }
-
-            return $all;
-    }
-
-    public function findOneBy($table, $fields, $conditions=null, $order = null, $debug=false) {
-            $result = array();
-
-                     
-            $result = $this->findBy($table, $fields, $conditions, $order, $debug);
-
-     
-            if($result)
-                return $result[0];
-            else
-                return false;
     }
 }
