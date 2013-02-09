@@ -80,6 +80,17 @@ abstract class BaseModel extends DBAL {
 
     }
 
+    public function delete() {
+
+        $identifier = $this->identifier;
+
+        $attributes = $this->_getAttributes();
+
+        $sql = 'DELETE FROM ' . $this->dbtable. '  WHERE ' . $identifier .' = '. $attributes[$identifier];
+
+        $this->execute($sql);
+    }
+
     public function setTable($table) {
         $this->dbtable = $table;
     }

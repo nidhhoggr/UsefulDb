@@ -47,7 +47,7 @@ class DBAL extends DB {
         
         $this->_sqlizeConditions($conditions);        
 
-        $this->querySql = "SELECT ". $this->sqlFields . " " . $this->sqlConditions . " FROM $table  $order";
+        $this->querySql = "SELECT ". $this->sqlFields . " FROM $table " . $this->sqlConditions . " $order";
 
         if($fetchArray) return $this->_fetchArrayFromQuery();
     }
